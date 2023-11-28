@@ -19,7 +19,8 @@ import (
 // Subversion repository.
 type Subversion struct {
 	Remote
-	Path string
+	Path     string
+	Insecure bool
 }
 
 // Validate settings.
@@ -33,6 +34,7 @@ func (r *Subversion) Validate() (err error) {
 	if err != nil {
 		return
 	}
+	r.Insecure = insecure
 	switch u.Scheme {
 	case "http":
 		if !insecure {
@@ -81,15 +83,11 @@ func (r *Subversion) Fetch() (err error) {
 func (r *Subversion) checkout(branch string) (err error) {
 	url := r.URL()
 	_ = nas.RmDir(r.Path)
-	/*insecure, err := addon.Setting.Bool("svn.insecure.enabled")
-	if err != nil {
-		return
-	}*/
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Options.Add("--non-interactive")
-	//if insecure {
-	cmd.Options.Add("--trust-server-cert")
-	//}
+	if r.Insecure {
+		cmd.Options.Add("--trust-server-cert")
+	}
 
 	if branch != "" {
 		url.Path = pathlib.Join(url.RawPath, "branches", branch)
@@ -128,12 +126,8 @@ func (r *Subversion) addFiles(files []string) (err error) {
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Dir = r.Path
 	cmd.Options.Add("add")
-	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
-	if err != nil {
-		return
-	}
 	cmd.Options.Add("--non-interactive")
-	if insecure {
+	if r.Insecure {
 		cmd.Options.Add("--trust-server-cert")
 	}
 	cmd.Options.Add("--force", files...)
@@ -150,12 +144,8 @@ func (r *Subversion) Commit(files []string, msg string) (err error) {
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Dir = r.Path
 	cmd.Options.Add("commit", "-m", msg)
-	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
-	if err != nil {
-		return
-	}
 	cmd.Options.Add("--non-interactive")
-	if insecure {
+	if r.Insecure {
 		cmd.Options.Add("--trust-server-cert")
 	}
 	err = cmd.Run()
@@ -222,11 +212,7 @@ func (r *Subversion) writePassword(id *api.Identity) (err error) {
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Options.Add("--non-interactive")
 	cmd.Options.Add("--trust-server-cert")
-	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
-	if err != nil {
-		return
-	}
-	if insecure {
+	if r.Insecure {
 		cmd.Options.Add("--trust-server-cert")
 	}
 	cmd.Options.Add("--username")
