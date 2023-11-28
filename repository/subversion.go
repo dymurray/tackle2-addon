@@ -221,6 +221,7 @@ func (r *Subversion) writePassword(id *api.Identity) (err error) {
 
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Options.Add("--non-interactive")
+	cmd.Options.Add("--trust-server-cert")
 	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
 	if err != nil {
 		return
