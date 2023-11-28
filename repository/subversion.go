@@ -87,9 +87,9 @@ func (r *Subversion) checkout(branch string) (err error) {
 	}
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Options.Add("--non-interactive")
-	if insecure {
-		cmd.Options.Add("--trust-server-cert")
-	}
+	//if insecure {
+	cmd.Options.Add("--trust-server-cert")
+	//}
 
 	if branch != "" {
 		url.Path = pathlib.Join(url.RawPath, "branches", branch)
