@@ -233,7 +233,7 @@ func (r *Subversion) writePassword(id *api.Identity) (err error) {
 		cmd.Options.Add("--trust-server-cert")
 	}
 	cmd.Options.Add("info", r.URL().String())
-	err = cmd.RunSilent()
+	err = cmd.Run()
 	if err != nil {
 		return
 	}
