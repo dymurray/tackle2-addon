@@ -81,10 +81,10 @@ func (r *Subversion) Fetch() (err error) {
 func (r *Subversion) checkout(branch string) (err error) {
 	url := r.URL()
 	_ = nas.RmDir(r.Path)
-	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
+	/*insecure, err := addon.Setting.Bool("svn.insecure.enabled")
 	if err != nil {
 		return
-	}
+	}*/
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Options.Add("--non-interactive")
 	//if insecure {
