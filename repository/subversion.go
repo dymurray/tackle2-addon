@@ -128,6 +128,14 @@ func (r *Subversion) addFiles(files []string) (err error) {
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Dir = r.Path
 	cmd.Options.Add("add")
+	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
+	if err != nil {
+		return
+	}
+	cmd.Options.Add("--non-interactive")
+	if insecure {
+		cmd.Options.Add("--trust-server-cert")
+	}
 	cmd.Options.Add("--force", files...)
 	err = cmd.Run()
 	return
@@ -142,6 +150,14 @@ func (r *Subversion) Commit(files []string, msg string) (err error) {
 	cmd := command.Command{Path: "/usr/bin/svn"}
 	cmd.Dir = r.Path
 	cmd.Options.Add("commit", "-m", msg)
+	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
+	if err != nil {
+		return
+	}
+	cmd.Options.Add("--non-interactive")
+	if insecure {
+		cmd.Options.Add("--trust-server-cert")
+	}
 	err = cmd.Run()
 	return
 }
@@ -209,6 +225,13 @@ func (r *Subversion) writePassword(id *api.Identity) (err error) {
 	cmd.Options.Add(id.User)
 	cmd.Options.Add("--password")
 	cmd.Options.Add(id.Password)
+	insecure, err := addon.Setting.Bool("svn.insecure.enabled")
+	if err != nil {
+		return
+	}
+	if insecure {
+		cmd.Options.Add("--trust-server-cert")
+	}
 	cmd.Options.Add("info", r.URL().String())
 	err = cmd.RunSilent()
 	if err != nil {
